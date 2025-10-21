@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}Business Progress - SmartSpaza{% endblock %}
+
+{% block head %}
+<!-- Optional: Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    body {
+        background-color: #f4f6f9;
+        font-family: Arial, sans-serif;
+    }
+    .navbar {
+        background-color: #00695c;
+    }
+    .navbar-brand, .nav-link {
+        color: white !important;
+    }
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .chart-container {
+        position: relative;
+        height: 350px;
+        width: 100%;
+    }
+    .low-stock {
+        background-color: #ffcccc !important;
+    }
+    .progress {
+        height: 30px;
+    }
+    .toast-message {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+    }
+    .toast-text {
+        background-color: #28a745;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        margin-top: 5px;
+        display: inline-block;
+        opacity: 0;
+        transition: opacity 0.5s, bottom 0.5s;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="{{ url_for('main') }}">SmartSpaza</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a href="{{ url_for('main') }}" class="nav-link">🏠 Dashboard</a></li>
+                <li class="nav-item"><a href="{{ url_for('add_product') }}" class="nav-link">➕ Add Product</a></li>
+                <li class="nav-item"><a href="{{ url_for('record_sale') }}" class="nav-link">🧾 Sales</a></li>
+                <li class="nav-item"><a href="{{ url_for('report') }}" class="nav-link">📋 Report</a></li>
+                <li class="nav-item"><a href="{{ url_for('progress') }}" class="nav-link active fw-semibold">📈 Progress</a></li>
+                <li class="nav-item"><a href="{{ url_for('shop', owner_id=session['owner_id']) }}" class="nav-link">🛒 Shop</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container my-5">
+    <h2 class="text-center mb-4 fw-bold text-success">📊 Business Progress Dashboard</h2>
+
+    {% if milestone_message %}
+        <div class="alert alert-success text-center">{{ milestone_message }}</div>
+    {% endif %}
+    {% if low_stock_products %}
+        <div class="alert alert-danger text-center">
+            ⚠️ Low stock for: {{ ", ".join(low_stock_products) }}
+        </div>
+    {% endif %}
+
+    <!-- Weekly Sales Trends -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white fw-semibold">
+            📈 Weekly Sales Trends
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="weeklySalesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Products -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white fw-semibold">
+            🏆 Top 4 Products
+        </div>
+        <div class="card-body">
+            {% if top_products %}
+            <div class="chart-container mb-4">
+                <canvas id="topProductsChart"></canvas>
+            </div>
+            <table class="table table-striped align-middle text-center">
+                <thead class="table-light">
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity Sold</th>
+                        <th>Revenue (R)</th>
+                        <th>Profit (R)</th>
+                        <th>Stock</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in top_products %}
+                    <tr class="{{ 'low-stock' if p.stock < 5 else '' }}">
+                        <td>{{ p.name }}</td>
+                        <td>{{ p.sold }}</td>
+                        <td>{{ "%.2f"|format(p.revenue) }}</td>
+                        <td>{{ "%.2f"|format(p.profit) }}</td>
+                        <td>{{ p.stock }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p class="text-muted text-center">No sales data yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Monthly Revenue Target -->
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-white fw-semibold">
+            🎯 Monthly Revenue Target
+        </div>
+        <div class="card-body">
+            <div class="progress mb-2">
+                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ monthly_progress }}%;" aria-valuenow="{{ monthly_progress }}" aria-valuemin="0" aria-valuemax="100">
+                    {{ monthly_progress }}%
+                </div>
+            </div>
+            <p class="text-center">R{{ "%.2f"|format(current_revenue) }} / R{{ "%.2f"|format(target_revenue) }}</p>
+        </div>
+    </div>
+
+    <!-- Filters & Export -->
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white fw-semibold">
+            🔍 Filters & Export
+        </div>
+        <div class="card-body text-center">
+            <form method="GET" class="mb-3">
+                <label for="filterDate">Date:</label>
+                <input type="date" name="filterDate" id="filterDate" value="{{ filter_date }}">
+                <label for="filterCategory">Category:</label>
+                <select name="filterCategory" id="filterCategory">
+                    <option value="">All</option>
+                    {% for cat in categories %}<option value="{{ cat }}" {% if cat==filter_category %}selected{% endif %}>{{ cat }}</option>{% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+            </form>
+            <a href="{{ url_for('export_sales_csv') }}" class="btn btn-success btn-sm">Export CSV</a>
+            <a href="{{ url_for('export_sales_pdf') }}" class="btn btn-danger btn-sm">Export PDF</a>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('main') }}" class="btn btn-secondary px-4 py-2">⬅ Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Weekly Sales Chart
+    const weeklySalesData = {{ weekly_sales|tojson }};
+    const weeks = weeklySalesData.map(item => item.week);
+    const weeklyProfits = weeklySalesData.map(item => item.profit);
+
+    const weeklyChart = new Chart(document.getElementById('weeklySalesChart'), {
+        type: 'line',
+        data: {
+            labels: weeks,
+            datasets: [{
+                label: 'Profit (R)',
+                data: weeklyProfits,
+                backgroundColor: 'rgba(40,167,69,0.2)',
+                borderColor: '#28a745',
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true, position: 'top' },
+                title: { display: true, text: 'Weekly Profit Trends' }
+            },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // Top Products Chart
+    const topProductsData = {{ top_products|tojson }};
+    const productNames = topProductsData.map(p => p.name);
+    const productRevenue = topProductsData.map(p => p.revenue);
+
+    const topChart = new Chart(document.getElementById('topProductsChart'), {
+        type: 'bar',
+        data: {
+            labels: productNames,
+            datasets: [{
+                label: 'Revenue (R)',
+                data: productRevenue,
+                backgroundColor: ['#4CAF50', '#FFC107', '#28a745', '#17A2B8']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                title: { display: true, text: 'Top 4 Products by Revenue' }
+            },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+</script>
+{% endblock %}

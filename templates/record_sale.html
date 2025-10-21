@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Record Sale - SmartSpaza{% endblock %}
+
+{% block head %}
+<style>
+    table { width: 80%; margin: 20px auto; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+    th { background-color: #4CAF50; color: white; }
+    tr:nth-child(even) { background-color: #f2f2f2; }
+    tr:hover { background-color: #ddd; }
+    h1 { text-align: center; }
+    .back { display: block; text-align: center; margin: 20px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>🧾 Recorded Sales</h1>
+
+{% if sales %}
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Product</th>
+        <th>Quantity Sold</th>
+        <th>Total (R)</th>
+        <th>Date</th>
+    </tr>
+    {% for sale in sales %}
+    <tr>
+        <td>{{ sale[0] }}</td>
+        <td>{{ sale[1] }}</td>
+        <td>{{ sale[2] }}</td>
+        <td>{{ sale[3] }}</td>
+        <td>{{ sale[4] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p style="text-align:center;">No sales have been made yet.</p>
+{% endif %}
+
+<br>
+<a class="back" href="{{ url_for('main') }}">⬅ Home Page</a>
+{% endblock %}

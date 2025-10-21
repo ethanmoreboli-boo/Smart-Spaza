@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}SmartSpaza - Dashboard{% endblock %}
+
+{% block head %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 30px;
+        background-color: #f9f9f9;
+    }
+
+    h1 {
+        color: #4CAF50;
+        margin-bottom: 30px;
+    }
+
+    .menu {
+        margin-bottom: 30px;
+    }
+
+    .menu a {
+        display: inline-block;
+        margin-right: 15px;
+        margin-bottom: 10px;
+        padding: 12px 20px;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        transition: 0.2s;
+    }
+
+    .menu a:hover {
+        background-color: #45a049;
+    }
+
+    table {
+        width: 90%;
+        max-width: 900px;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background-color: #fff;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    tr:nth-child(even) { background-color: #f9f9f9; }
+
+    .back {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 8px 15px;
+        text-decoration: none;
+        color: #007bff;
+        border: 1px solid #007bff;
+        border-radius: 6px;
+        transition: 0.2s;
+    }
+
+    .back:hover {
+        background-color: #007bff;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <h1>🛒 SmartSpaza Dashboard</h1>
+
+    <!-- Menu -->
+    <div class="menu">
+        <a href="{{ url_for('add_product') }}">Add Product</a>
+        <a href="{{ url_for('record_sale') }}">Record Sale</a>
+        <a href="{{ url_for('report') }}">View Report</a>
+        <a href="{{ url_for('progress') }}">Progress / Analytics</a>
+        <a href="{{ url_for('shop', owner_id=session['owner_id']) }}">Customer Site</a>
+    </div>
+
+    <hr>
+
+    <!-- Products Table -->
+    <h2>All Products</h2>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Buy Price (R)</th>
+            <th>Sell Price (R)</th>
+            <th>Quantity</th>
+        </tr>
+        {% for product in products %}
+        <tr>
+            <td>{{ product[1] }}</td>
+            <td>R{{ "%.2f"|format(product[2]) }}</td>
+            <td>R{{ "%.2f"|format(product[3]) }}</td>
+            <td>{{ product[4] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- Back to landing page -->
+    <a class="back" href="{{ url_for('index') }}">⬅ Back to Welcome Page</a>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}SmartSpaza - Shop{% endblock %}
+
+{% block head %}
+<style>
+    body { font-family: Arial, sans-serif; }
+    h1, h3 { text-align: center; }
+    table { width: 80%; margin: 20px auto; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+    th { background-color: #4CAF50; color: white; }
+    tr:nth-child(even) { background-color: #f2f2f2; }
+    tr:hover { background-color: #ddd; }
+    input[type=number] { width: 60px; }
+    .search-bar { text-align: center; margin-top: 20px; }
+    button { display: block; margin: 20px auto; padding: 10px 20px; font-size: 18px; cursor: pointer; }
+    .export-btn { margin: 5px; padding: 8px 12px; background-color: #28a745; color: white; border-radius: 5px; text-decoration: none; }
+    .export-btn:hover { background-color: #218838; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>🛒 Welcome to SmartSpaza</h1>
+
+<div class="search-bar">
+    <label for="search">Search Product:</label>
+    <input type="text" id="search" placeholder="Type product name...">
+</div>
+
+<form method="POST" id="orderForm">
+    <table id="productTable">
+        <tr>
+            <th>Product</th>
+            <th>Price (R)</th>
+            <th>Quantity</th>
+            <th>Line Total (R)</th>
+        </tr>
+        {% for product in products %}
+        <tr class="productRow">
+            <td>{{ product[1] }}</td>
+            <td>{{ "%.2f"|format(product[2]) }}</td>
+            <td>
+                <input type="number" name="qty_{{ product[0] }}" min="0" value="0" class="qty" data-price="{{ product[2] }}">
+            </td>
+            <td class="lineTotal">0.00</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h3>Total to Pay (Including R{{ fixed_fee }} Transaction Fee): R<span id="grandTotal">0.00</span></h3>
+    <button type="submit">Confirm Order</button>
+</form>
+
+<!-- Export Buttons -->
+<div style="text-align:center;">
+    <a href="{{ url_for('export_sales_csv') }}" class="export-btn">Export CSV</a>
+    <a href="{{ url_for('export_sales_pdf') }}" class="export-btn">Export PDF</a>
+</div>
+
+<br>
+<a class="back" href="{{ url_for('main') }}">⬅ Back to Dashboard</a>
+
+<!-- Toast Container -->
+<div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="toast-message {{ category }}" style="
+                background-color: #333; color: white; 
+                padding: 12px 20px; border-radius: 8px; 
+                margin-top: 10px; opacity: 0; transition: all 0.5s;">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const qtyInputs = document.getElementsByClassName("qty");
+const fixedCharge = {{ fixed_fee }};
+
+function updateTotal() {
+    let grandTotal = 0;
+    for (let inp of qtyInputs) {
+        const price = parseFloat(inp.dataset.price) || 0;
+        const qty = parseInt(inp.value) || 0;
+        const lineTotal = price * qty;
+        inp.closest("tr").querySelector(".lineTotal").innerText = lineTotal.toFixed(2);
+        grandTotal += lineTotal;
+    }
+    grandTotal += fixedCharge;
+    document.getElementById("grandTotal").innerText = grandTotal.toFixed(2);
+}
+
+for (let input of qtyInputs) input.addEventListener("input", updateTotal);
+updateTotal();
+
+const searchInput = document.getElementById("search");
+searchInput.addEventListener("keyup", function() {
+    const filter = searchInput.value.toLowerCase();
+    const rows = document.querySelectorAll("#productTable .productRow");
+    rows.forEach(row => {
+        const productName = row.cells[0].innerText.toLowerCase();
+        row.style.display = productName.includes(filter) ? "" : "none";
+    });
+});
+
+// Toast fade effect
+window.addEventListener('DOMContentLoaded', () => {
+    const toasts = document.querySelectorAll('#toast-container .toast-message');
+    toasts.forEach(toast => {
+        toast.style.opacity = 1;
+        toast.style.transform = "translateY(-10px)";
+        setTimeout(() => {
+            toast.style.opacity = 0;
+            toast.style.transform = "translateY(0px)";
+        }, 3000);
+    });
+});
+</script>
+{% endblock %}
+

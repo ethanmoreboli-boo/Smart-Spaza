@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Report - SmartSpaza{% endblock %}
+
+{% block head %}
+<style>
+    body { font-family: Arial, sans-serif; }
+    table { width: 80%; margin: 20px auto; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+    th { background-color: #4CAF50; color: white; }
+    tr:nth-child(even) { background-color: #f2f2f2; }
+    tr:hover { background-color: #ddd; }
+    .export-btn { margin: 5px; padding: 8px 12px; background-color: #28a745; color: white; border-radius: 5px; text-decoration: none; }
+    .export-btn:hover { background-color: #218838; }
+    .back { display: inline-block; margin-top: 20px; text-decoration: none; color: #007bff; }
+    .back:hover { text-decoration: underline; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>📊 Daily / Monthly Report</h1>
+
+<table>
+    <tr>
+        <th>Product</th>
+        <th>Quantity Sold</th>
+        <th>Total Sales (R)</th>
+        <th>Profit (R)</th>
+    </tr>
+    {% for row in report %}
+    <tr>
+        <td>{{ row['name'] }}</td>
+        <td>{{ row['qty'] }}</td>
+        <td>R{{ "%.2f"|format(row['revenue']) }}</td>
+        <td>R{{ "%.2f"|format(row['profit']) }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h3>Total Profit: R{{ "%.2f"|format(grand_total) }}</h3>
+
+<div>
+    <a href="{{ url_for('export_sales_csv') }}" class="export-btn">Export CSV</a>
+    <a href="{{ url_for('export_sales_pdf') }}" class="export-btn">Export PDF</a>
+</div>
+
+<a class="back" href="{{ url_for('main') }}">⬅ Back to Dashboard</a>
+{% endblock %}

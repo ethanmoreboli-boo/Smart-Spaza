@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Add Product - SmartSpaza{% endblock %}
+
+{% block head %}
+<style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+    input, button { padding: 8px 12px; margin: 10px; font-size: 16px; }
+    button { cursor: pointer; }
+    .back { display: inline-block; margin-top: 20px; text-decoration: none; color: #333; }
+    .toast-message { 
+        position: fixed; bottom: 20px; right: 20px; 
+        background-color: #333; color: white; 
+        padding: 12px 20px; border-radius: 8px; 
+        margin-top: 10px; opacity: 0; transition: all 0.5s; z-index: 9999;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>➕ Add New Product</h1>
+
+<form method="POST">
+    <input type="text" name="name" placeholder="Product Name" required><br>
+    <input type="number" name="buy_price" placeholder="Buy Price (R)" step="0.01" required><br>
+    <input type="number" name="sell_price" placeholder="Sell Price (R)" step="0.01" required><br>
+    <input type="number" name="quantity" placeholder="Quantity" required><br>
+    <button type="submit">Save Product</button>
+</form>
+
+<br>
+<a class="back" href="{{ url_for('main') }}">⬅ Back to Dashboard</a>
+
+<!-- Toast Container -->
+<div id="toast-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="toast-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    const toasts = document.querySelectorAll('#toast-container .toast-message');
+    toasts.forEach(toast => {
+        toast.style.opacity = 1;
+        toast.style.transform = "translateY(-10px)";
+        setTimeout(() => {
+            toast.style.opacity = 0;
+            toast.style.transform = "translateY(0px)";
+        }, 3000);
+    });
+});
+</script>
+{% endblock %}
+
