@@ -1,0 +1,415 @@
+{% extends "base.html" %}
+
+{% block title %}SmartSpaza - Dashboard{% endblock %}
+
+{% block head %}
+<style>
+body {
+    font-family: 'Segoe UI', sans-serif;
+    color: #181818;
+    animation: fadeIn 0.6s ease-in;
+    margin: 0;
+    padding: 30px;
+    background: linear-gradient(135deg, #89daff 0%, #d1f2d7 100%);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h1, h2 {
+    color: #2e7d32;
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 28px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+}
+
+.nav-bar-top {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; /* ✅ wraps links on mobile */
+    gap: 16px;
+    padding: 14px 20px;
+    margin-bottom: 30px;
+    border: 2px solid #4CAF50;
+    border-radius: 12px;
+    background-color: #ffffffcc;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.nav-bar-top a {
+    text-decoration: none;
+    color: #4CAF50;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background-color: transparent;
+    font-size: 15px;
+}
+.nav-bar-top a:hover {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.summary {
+    width: 95%;
+    max-width: 1100px;
+    margin: 0 auto 40px auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.summary div {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+.summary div:hover { transform: translateY(-4px); }
+
+.summary div h3 { margin-bottom: 10px; color: #555; font-size: 16px; }
+.summary div p { font-size: 22px; font-weight: bold; color: #2e7d32; margin: 0; }
+
+.search-bar { text-align: center; margin-bottom: 25px; }
+.search-bar input {
+    padding: 10px 16px;
+    width: 100%;          /* ✅ responsive */
+    max-width: 400px;     /* cap width */
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    transition: box-shadow 0.3s ease;
+}
+.search-bar input:focus {
+    outline: none;
+    box-shadow: 0 0 6px rgba(76,175,80,0.3);
+}
+
+table {
+    width: 95%;
+    max-width: 1100px;
+    border-collapse: collapse;
+    margin: 0 auto 40px auto;
+    background-color: #fff;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    border-radius: 12px;
+    overflow-x: auto; /* ✅ horizontal scroll on mobile */
+    font-size: 15px;
+}
+
+th, td {
+    padding: 14px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+th {
+    background: linear-gradient(90deg, #4CAF50, #81c784);
+    color: white;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+tr:hover { background-color: #f9f9f9; transition: background-color 0.3s ease; }
+
+.nav-bottom {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; 
+    margin-top: 50px;
+}
+.nav-bottom a {
+    text-decoration: none;
+    color: #007bff;
+    border: 2px solid #007bff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+.nav-bottom a:hover { background-color: #007bff; color: white; }
+
+.toast-message { 
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 14px 22px;
+    border-radius: 10px;
+    opacity: 0;
+    transition: all 0.5s ease;
+    z-index: 9999;
+    font-size: 14px;
+}
+
+.popup-overlay {
+    position: fixed;
+    top: -100%; /* hidden initially */
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    transition: top 0.5s ease;
+    z-index: 9999;
+}
+
+.popup-overlay.active {
+    top: 0; /* slides down when active */
+}
+
+.popup-box {
+    background: #fff;
+    padding: 20px;
+    margin-top: 60px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+/* Modal background */
+.modal {
+  display: none; 
+  position: fixed; 
+  top: 0; left: 0; 
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5); 
+  z-index: 2000; 
+  align-items: center; 
+  justify-content: center;
+}
+
+/* Modal box */
+.modal-content {
+  background: #fff; 
+  padding: 20px; 
+  border-radius: 8px; 
+  width: 300px; 
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  animation: fadeIn 0.3s ease;
+}
+
+/* Buttons */
+.modal-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.modal-actions button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal-actions button[type="submit"] {
+  background: #28a745;
+  color: white;
+}
+
+#cancelBtn {
+  background: #dc3545;
+  color: white;
+}
+
+/* Error message */
+.error-msg {
+  color: red;
+  display: none;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {opacity: 0; transform: scale(0.9);}
+  to {opacity: 1; transform: scale(1);}
+}
+
+
+@media (max-width: 480px) {
+    h1, h2 { font-size: 22px; }
+    th, td { font-size: 13px; padding: 10px; }
+    .nav-bottom a { margin: 8px 0; width: 80%; text-align: center; }
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 style="font-size: 50px;"><strong> <b>SmartSpaza Dashboard </b> </strong></h1>
+
+<!-- Top Navigation Bar -->
+<div class="nav-bar-top">
+    <a  href="{{ url_for('owner_details') }}" class="owner-protected" >👤 Profile</a>
+    <a href="{{ url_for('record_sale') }}">📝 Record Sale</a>
+    <a href="{{ url_for('shop') }}">🛒 Shop</a>
+    
+</div>
+
+
+<!-- Summary Boxes -->
+<div class="summary">
+    <div>
+        <h3>Total Products</h3>
+        <p>{{ total_products }}</p>
+    </div>
+    <div>
+        <h3>Total Sales</h3>
+        <p>R{{ "%.2f"|format(total_sales) }}</p>
+    </div>
+    <div>
+        <h3>Top Product</h3>
+        <p>{{ top_product_name }}</p>
+    </div>
+    <div>
+        <h3>Low Stock</h3>
+        <p>{{ low_stock_count }}</p>
+    </div>
+</div>
+
+<h2> Top 5 Best Selling Products</h2>
+
+<table id="productTable">
+    <tr>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Quantity Sold</th>
+        <th>Total Sales (R)</th>
+    </tr>
+    {% for product in top_products %}
+    <tr class="productRow">
+        <td>{{ product.name }}</td>
+        <td>{{ product.sell_price }}</td>
+        <td>{{ product.quantity_sold }}</td>
+        <td>{{ "%.2f"|format(product.total_sales) }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<!-- Bottom Navigation: Logout -->
+<div class="nav-bottom">
+    <a href="{{ url_for('logout') }}"> Logout</a>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="toast-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+</div>
+
+<!-- Passcode Popup Modal -->
+<div id="passcodePopup" class="modal">
+  <div class="modal-content">
+    <h3>Enter Passcode</h3>
+    <form id="passcodeForm" action="{{ url_for('check_passcode') }}" method="POST">
+      <input type="password" name="passcode" placeholder="Passcode" required>
+      <div class="modal-actions">
+        <button type="submit">Unlock</button>
+        <button type="button" id="cancelBtn">Cancel</button>
+      </div>
+    </form>
+    <p id="errorMsg" class="error-msg">Invalid passcode. Try again.</p>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Search functionality
+const searchInput = document.getElementById("search");
+if (searchInput) {
+  searchInput.addEventListener("keyup", function() {
+    const filter = searchInput.value.toLowerCase();
+    const rows = document.querySelectorAll("#productTable .productRow");
+    rows.forEach(row => {
+      const productName = row.cells[0].innerText.toLowerCase();
+      row.style.display = productName.includes(filter) ? "" : "none";
+    });
+  });
+}
+
+// Toast fade effect
+window.addEventListener('DOMContentLoaded', () => {
+    const toasts = document.querySelectorAll('#toast-container .toast-message');
+    toasts.forEach(toast => {
+        toast.style.opacity = 1;
+        toast.style.transform = "translateY(-10px)";
+        setTimeout(() => {
+            toast.style.opacity = 0;
+            toast.style.transform = "translateY(0px)";
+        }, 3000);
+    });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const popup = document.getElementById("passcodePopup");
+  const form = document.getElementById("passcodeForm");
+  const errorMsg = document.getElementById("errorMsg");
+  const cancelBtn = document.getElementById("cancelBtn");
+
+  // Intercept clicks on protected links
+  document.querySelectorAll("a.owner-protected").forEach(link => {
+    link.addEventListener("click", function(e) {
+      e.preventDefault();
+      popup.style.display = "flex"; // show popup
+      form.dataset.target = this.href;
+    });
+  });
+
+  // Handle passcode form submission
+  form.addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const passcode = this.querySelector("input[name='passcode']").value;
+
+    const response = await fetch(this.action, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `passcode=${encodeURIComponent(passcode)}`
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      popup.style.display = "none";
+      errorMsg.style.display = "none";
+      window.location.href = this.dataset.target;
+    } else {
+      errorMsg.style.display = "block";
+    }
+  });
+
+  // Cancel button closes popup
+  cancelBtn.addEventListener("click", () => {
+    popup.style.display = "none";
+    errorMsg.style.display = "none";
+    form.reset();
+  });
+
+  // Click outside modal closes popup
+  window.addEventListener("click", (e) => {
+    if (e.target === popup) {
+      popup.style.display = "none";
+      errorMsg.style.display = "none";
+      form.reset();
+    }
+  });
+});
+</script>
+{% endblock %}

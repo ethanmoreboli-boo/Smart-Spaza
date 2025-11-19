@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}SmartSpaza - Monthly Transactions{% endblock %}
+
+{% block head %}
+<style>
+  
+:root {
+  --primary: #2563eb;   /* blue-600 */
+  --primary-dark: #1e40af;
+  --bg-soft: #f8fafc;   /* slate-50 */
+  --text: #0f172a;      /* slate-900 */
+  --muted: #475569;     /* slate-600 */
+  --success-bg: #e8f5e9;
+  --success-text: #1b5e20;
+  --danger-bg: #ffebee;
+  --danger-text: #b71c1c;
+  --neutral-bg: #eceff1;
+  --neutral-text: #37474f;
+}
+
+body {
+  color: var(--text);
+  background: var(--bg-soft);
+}
+
+/* Title: centered, compact */
+h1.page-title {
+  text-align: center;
+  margin: 16px 0 12px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+/* Navigation: subtle, compact buttons, centered */
+.nav-bar-top {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 0 14px;
+}
+.nav-bar-top a {
+  text-decoration: none;
+  font-size: 0.95rem;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.nav-bar-top a:hover {
+  background-color: var(--primary);
+  color: #fff;
+  border-color: var(--primary-dark);
+}
+
+/* Table wrapper: centered, fits screen, scrolls if needed */
+.table-wrapper {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto 18px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+/* Scroll area: allows both axes if needed */
+.scrollable-table {
+  max-height: 480px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+/* Table: compact sizing, no overflow jitter */
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+  background-color: #fff;
+  font-size: 0.92rem;
+}
+
+/* Sticky header: fixed at top, subtle shadow */
+.styled-table thead {
+  position: sticky;
+  top: 0;
+  background-color: #f1f5f9; /* slate-100 */
+  color: var(--muted);
+  z-index: 2;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+}
+.styled-table thead th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Cells: compact padding, centered text */
+.styled-table th,
+.styled-table td {
+  padding: 8px 10px;
+  text-align: center;
+  border-bottom: 1px solid #e2e8f0; /* slate-200 */
+  min-width: 72px;
+}
+
+/* Remove row hover effect completely */
+.styled-table tbody tr {
+  background-color: #fff;
+}
+
+/* Zebra striping for readability */
+.styled-table tbody tr:nth-child(odd) {
+  background-color: #fcfcfd;
+}
+
+/* Status chips: small, readable, color-coded */
+.status {
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 3px 8px;
+  border-radius: 999px;
+  display: inline-block;
+  line-height: 1.2;
+}
+.status.paid {
+  background-color: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid #c8e6c9;
+}
+.status.unpaid {
+  background-color: var(--danger-bg);
+  color: var(--danger-text);
+  border: 1px solid #ffcdd2;
+}
+.status.na {
+  background-color: var(--neutral-bg);
+  color: var(--neutral-text);
+  border: 1px solid #cfd8dc;
+}
+
+/* Back button: consistent with nav, centered */
+.back {
+  display: block;
+  text-align: center;
+  margin: 10px auto 18px;
+  padding: 8px 12px;
+  text-decoration: none;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+  transition: 0.2s;
+  max-width: 220px;
+  font-size: 0.95rem;
+}
+.back:hover {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary-dark);
+}
+
+/* Responsive tweaks: smaller fonts, tighter paddings */
+@media (max-width: 768px) {
+  h1.page-title { font-size: 1.25rem; }
+  .styled-table { font-size: 0.88rem; }
+  .styled-table th, .styled-table td { padding: 7px 8px; min-width: 68px; }
+  .scrollable-table { max-height: 420px; }
+  .nav-bar-top a { font-size: 0.9rem; padding: 5px 9px; }
+}
+@media (max-width: 480px) {
+  h1.page-title { font-size: 1.1rem; }
+  .styled-table { font-size: 0.85rem; }
+  .styled-table th, .styled-table td { padding: 6px 7px; min-width: 64px; }
+  .scrollable-table { max-height: 380px; }
+  .nav-bar-top { gap: 8px; }
+  .nav-bar-top a { font-size: 0.88rem; padding: 5px 8px; }
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Monthly Transactions</h1>
+
+<nav class="nav-bar-top">
+  <a href="{{ url_for('dev_dashboard') }}">Dashboard</a>
+  <a href="{{ url_for('account_management') }}">Manage Accounts</a>
+</nav>
+
+<div class="table-wrapper">
+  <div class="scrollable-table">
+    <table class="styled-table">
+      <thead>
+        <tr><strong>
+            <th><strong>Owner ID</strong></th>
+            <th><strong>Username</strong></th>
+            {% for month in ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
+                <th><strong>{{ month }}</strong></th>
+            {% endfor %}
+            </strong>
+        </tr>
+      </thead>
+      <tbody>
+        {% for id, data in owners.items() %}
+        <tr>
+          <td>{{ id }}</td>
+          <td><strong>{{ data.username }}</strong></td>
+          {% for m in range(1,13) %}
+            <td>
+              {% if m in data.months %}
+                {% if data.months[m] == 'paid' %}
+                  <span class="status paid">Paid</span>
+                {% elif data.months[m] == 'unpaid' %}
+                  <span class="status unpaid">Unpaid</span>
+                {% else %}
+                  <span class="status na">N/A</span>
+                {% endif %}
+              {% else %}
+                <span class="status na">N/A</span>
+              {% endif %}
+            </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<a class="back" href="{{ url_for('dev_dashboard') }}">⬅ Back to Dashboard</a>
+{% endblock %}

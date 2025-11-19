@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+
+{% block title %}SmartSpaza - Report{% endblock %}
+
+{% block head %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 30px;
+        background: linear-gradient(120deg, #9ac4e6 0%, #f6fbfe 100%);
+    }
+
+    .nav-bar-top {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 12px;
+        margin-bottom: 30px;
+        border: 2px solid #4CAF50;
+        border-radius: 10px;
+        background-color: #f9f9f9;
+    }
+
+    .nav-bar-top a {
+        text-decoration: none;
+        color: #4CAF50;
+        font-weight: bold;
+        padding: 6px 12px;
+        border-radius: 6px;
+        transition: 0.3s;
+    }
+
+    .nav-bar-top a:hover {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    h1 {
+        text-align: center;
+        color: #4CAF50;
+        margin-bottom: 25px;
+    }
+
+    .search-bar {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .search-bar input {
+        padding: 8px 12px;
+        width: 100%;
+        max-width: 300px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+
+    table {
+        width: 95%;
+        max-width: 1000px;
+        margin: 0 auto 30px auto;
+        border-collapse: collapse;
+        background-color: #fff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    th, td {
+        text-align: center;
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        font-size: 15px;
+    }
+
+    th {
+        background: linear-gradient(90deg, #4CAF50, #45a049);
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #fafafa;
+    }
+
+    tr:hover {
+        background-color: #f1f9f1;
+        transition: background-color 0.3s ease;
+    }
+
+    .summary-row {
+        background-color: #e8f5e9;
+        font-weight: bold;
+        border-top: 2px solid #4CAF50;
+    }
+
+    .button-container {
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .export-btn, .back {
+        display: inline-block;
+        margin: 8px;
+        padding: 10px 18px;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        transition: 0.3s;
+        font-weight: bold;
+    }
+
+    .export-btn:hover, .back:hover {
+        background-color: #45a049;
+    }
+
+    .toast-message { 
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #333;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin-top: 10px;
+        opacity: 0;
+        transition: all 0.5s;
+        z-index: 9999;
+        max-width: 90%;
+        text-align: center;
+    }
+
+    .scrollable-table {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        margin-bottom: 30px;
+    }
+
+    @media (max-width: 768px) {
+        body { margin: 15px; }
+        h1 { font-size: 24px; }
+        th, td { padding: 10px; font-size: 14px; }
+        .export-btn, .back { width: 60%; }
+    }
+
+    @media (max-width: 480px) {
+        h1 { font-size: 20px; }
+        .nav-bar-top { flex-direction: column; gap: 10px; }
+        .search-bar input { max-width: 100%; }
+        th, td { font-size: 13px; padding: 8px; }
+        .export-btn, .back { width: 80%; margin: 10px auto; }
+        .toast-message { font-size: 13px; padding: 10px 16px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="nav-bar-top">
+    <a href="{{ url_for('owner_details') }}">👤 Profile</a>
+    <a href="{{ url_for('progress') }}">Progress</a>
+</div>
+
+<h1> REPORTS</h1>
+
+<div class="search-bar">
+    <label for="search">Search Report:</label>
+    <input type="text" id="search" placeholder="Type product or sale...">
+</div>
+
+<div class="container">
+    <div class="scrollable-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>Products Bought</th>
+                    <th>Stock Cost (R)</th>
+                    <th>Products Sold</th>
+                    <th>Sales Revenue (R)</th>
+                    <th>Profit (R)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in monthly_stats %}
+                <tr>
+                    <td>{{ stat.month }}</td>
+                    <td>{{ stat.products_bought or 0 }}</td>
+                    <td>R{{ "%.2f"|format(stat.stock_cost or 0) }}</td>
+                    <td>{{ stat.products_sold or 0 }}</td>
+                    <td>R{{ "%.2f"|format(stat.sales_revenue or 0) }}</td>
+                    <td>R{{ "%.2f"|format(stat.profit or 0) }}</td>
+                </tr>
+                {% endfor %}
+                <tr class="summary-row">
+                    <td><strong>Total {{ year }}</strong></td>
+                    <td><strong>{{ yearly_summary.products_bought or 0 }}</strong></td>
+                    <td><strong>R{{ "%.2f"|format(yearly_summary.stock_cost or 0) }}</strong></td>
+                    <td><strong>{{ yearly_summary.products_sold or 0 }}</strong></td>
+                    <td><strong>R{{ "%.2f"|format(yearly_summary.sales_revenue or 0) }}</strong></td>
+                    <td><strong>R{{ "%.2f"|format(yearly_summary.profit or 0) }}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="year-selector" style="text-align:center; margin-bottom:20px;">
+    <label for="year">Select Year:</label>
+    <select id="year" name="year" onchange="location.href='/report/' + this.value;">
+        {% for y in range(2020, datetime.now().year + 1) %}
+            <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<div class="button-container">
+    <a href="{{ url_for('export_sales_csv', year=year) }}" class="export-btn">Export CSV</a>
+    <a href="{{ url_for('export_sales_pdf', year=year) }}" class="export-btn">Export PDF</a>
+    <a href="{{ url_for('dashboard') }}" class="back">⬅ Back to Dashboard</a>
+</div>
+
+<div id="toast-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="toast-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const searchInput = document.getElementById("search");
+searchInput.addEventListener("keyup", function() {
+    const filter = searchInput.value.toLowerCase();
+    const rows = document.querySelectorAll("table tbody tr");
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(filter) ? "" : "none";
+    });
+});
+
+// Toast fade effect
+window.addEventListener('DOMContentLoaded', () => {
+    const toasts = document.querySelectorAll('#toast-container .toast-message');
+    toasts.forEach(toast => {
+        toast.style.opacity = 1;
+        toast.style.transform = "translateY(-10px)";
+        setTimeout(() => {
+            toast.style.opacity = 0;
+            toast.style.transform = "translateY(0px)";
+        }, 3000);
+    });
+});
+</script>
+{% endblock %}

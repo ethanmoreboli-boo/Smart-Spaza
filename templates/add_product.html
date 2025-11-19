@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}SmartSpaza - Add Product{% endblock %}
+
+{% block head %}
+<style>
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #e0f7fa 0%, #dde0ff 100%);
+    animation: fadeIn 0.1s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* Main container */
+.container {
+    max-width: 520px;
+    margin: 40px auto;
+    background-color: #fff;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    padding: 35px 45px;
+    animation: fadeIn 0.1s ease-in;
+}
+@media (max-width: 600px) {
+    .container {
+        padding: 20px; /* ✅ tighter padding on mobile */
+        margin: 20px;
+    }
+}
+
+h1 {
+    text-align: center;
+    color: #2e7d32;
+    margin-bottom: 30px;
+    font-size: 28px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Form elements */
+label {
+    font-weight: 600;
+    display: block;
+    margin-top: 18px;
+    color: #444;
+}
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+    width: 100%; /* ✅ full width, responsive */
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-top: 6px;
+    box-sizing: border-box;
+    font-size: 14px;
+    transition: border-color 0.1s ease, box-shadow 0.1s ease;
+}
+input:focus, textarea:focus, select:focus {
+    border-color: #4CAF50;
+    outline: none;
+    box-shadow: 0 0 6px rgba(76,175,80,0.2);
+}
+
+/* Buttons */
+button {
+    width: 100%;
+    margin-top: 30px;
+    padding: 14px;
+    background: linear-gradient(90deg, #4caf50, #81c784); /* ✅ gradient */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background 0.1s ease, transform 0.1s ease;
+}
+button:hover {
+    background: linear-gradient(90deg, #388e3c, #66bb6a);
+    transform: scale(1.02);
+}
+
+/* Back link */
+.back {
+    display: block;
+    text-align: center;
+    margin-top: 25px;
+    text-decoration: none;
+    color: #2196f3;
+    font-weight: 500;
+    transition: 0.1s;
+}
+.back:hover {
+    text-decoration: underline;
+}
+
+/* Toast messages */
+.toast-message { 
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 14px 22px;
+    border-radius: 10px;
+    margin-top: 10px;
+    opacity: 0;
+    transition: all 0.1s;
+    z-index: 9999;
+    font-size: 14px;
+}
+
+/* Floating Action Button */
+.fab {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    background: linear-gradient(90deg, #4caf50, #81c784); /* ✅ gradient */
+    color: white;
+    font-size: 28px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 60px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    text-decoration: none;
+    z-index: 1000;
+}
+.fab:hover {
+    background: linear-gradient(90deg, #388e3c, #66bb6a);
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Top Navigation Bar -->
+
+
+<div class="container">
+    <h1> Add New Product</h1>
+    <form method="POST">
+        <label for="name">Product Name</label>
+        <input type="text" name="name" id="name" placeholder="Enter product name" required>
+
+        <label for="category">Category</label>
+        <input type="text" name="category" id="category" placeholder="e.g. Snacks, Drinks, Toiletries">
+
+        <label for="buy_price">Buying Price (R)</label>
+        <input type="number" step="0.01" name="buy_price" id="buy_price" placeholder="e.g. 10.50" required>
+
+        <label for="sell_price">Selling Price (R)</label>
+        <input type="number" step="0.01" name="sell_price" id="sell_price" placeholder="e.g. 15.00" required>
+
+        <label for="quantity">Quantity</label>
+        <input type="number" name="quantity" id="quantity" placeholder="Enter stock amount" required>
+
+        <label for="description">Description (optional)</label>
+        <textarea name="description" id="description" rows="3" placeholder="Short details about the product"></textarea>
+
+        <button type="submit">💾 Save Product</button>
+    </form>
+
+    <a class="back" href="{{ url_for('owner_details') }}"><strong> BACK</strong></a>
+</div>
+
+<a href="{{ url_for('manage_product') }}" class="fab">🛠</a>
+
+<div id="toast-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="toast-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const toasts = document.querySelectorAll('#toast-container .toast-message');
+        toasts.forEach(toast => {
+            toast.style.opacity = 1;
+            toast.style.transform = "translateY(-10px)";
+            setTimeout(() => {
+                toast.style.opacity = 0;
+                toast.style.transform = "translateY(0)";
+            }, 3000);
+        });
+    });
+</script>
+{% endblock %}

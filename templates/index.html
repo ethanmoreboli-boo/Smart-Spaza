@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}SmartSpaza - Welcome{% endblock %}
+
+{% block head %}
+<style>
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #d4fc79, #96e6a1);
+    min-height: 100vh;
+}
+
+header {
+    text-align: center;
+    padding: 60px 20px 30px;
+    color: #fff;
+}
+
+header h1 {
+    font-size: 3.2rem;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+}
+
+header p {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.main-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+    padding: 30px;
+}
+
+.left-column, .right-column {
+    flex: 1;
+    min-width: 300px;
+    max-width: 500px;
+}
+
+.section {
+    background: #f0e5e5;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.section:hover {
+    transform: translateY(-5px);
+}
+
+.link-button {
+    display: block;
+    margin: 12px 0;
+    padding: 12px;
+    font-size: 18px;
+    text-decoration: none;
+    border-radius: 10px;
+    color: white;
+    background: linear-gradient(45deg, #00c6ff, #0072ff);
+    transition: background 0.3s;
+}
+
+.link-button:hover {
+    background: linear-gradient(45deg, #0072ff, #00c6ff);
+}
+
+.dev-button {
+    display: block;
+    padding: 15px 40px;
+    font-size: 20px;
+    text-decoration: none;
+    color: white;
+    border-radius: 10px;
+    background: linear-gradient(45deg, #ff416c, #ff4b2b);
+    transition: background 0.3s;
+    margin: 25px auto 0;
+    max-width: 300px;
+    text-align: center;
+}
+
+.dev-button:hover {
+    background: linear-gradient(45deg, #ff4b2b, #ff416c);
+}
+
+.info-section h2 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.info-section p {
+    font-size: 1.1rem;
+    line-height: 1.6rem;
+    color: #444;
+    margin-bottom: 12px;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+    color: white;
+    font-weight: bold;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 600px) {
+    header h1 { font-size: 2.2rem; }
+    header p { font-size: 1rem; }
+    .main-container { gap: 20px; padding: 20px; }
+    .section { padding: 20px; }
+    .link-button { font-size: 16px; padding: 10px; }
+    .dev-button { font-size: 18px; padding: 12px 30px; }
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<header>
+    <h1>Welcome to SmartSpaza</h1>
+    <p>Your smart business management solution</p>
+</header>
+
+<div class="main-container">
+    <!-- Left Column -->
+    <div class="left-column">
+        <div class="section">
+            <h2>Shop Owner</h2>
+            <a class="link-button" href="{{ url_for('login') }}">Login</a>
+            <a class="link-button" href="{{ url_for('signup') }}">Signup</a><br>
+
+             <p>Access with Passkey: <a class="" href="{{ url_for('dev_login') }}"><strong>Private</strong></a></p>
+        </div>
+
+       
+    </div>
+
+    <!-- Right Column -->
+    <div class="right-column">
+        <div class="section info-section">
+            <h2>About Us</h2>
+            <p>SmartSpaza is more than just an inventory tool — it’s your business partner in growth. 
+                Built for small and township businesses, it helps you track products effortlessly, 
+                monitor sales in real time, and uncover powerful insights that drive smarter decisions. 
+                Whether you’re running a corner shop or scaling a growing spaza, 
+                SmartSpaza gives you the clarity and control to thrive with confidence.</p><br>
+                
+            <h3><strong>Contact Us</strong></h3>
+            <p>Email: support@smartspaza.com</p>
+            <p>Phone: +27 123 456 7890</p>
+            <p>Address: 123 Business Rd, Johannesburg, South Africa</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

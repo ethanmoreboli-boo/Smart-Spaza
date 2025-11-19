@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}SmartSpaza - Shop{% endblock %}
+
+{% block head %}
+<style>
+/* Global body styling */
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
+    color: #333;
+}
+
+/* Headings */
+h1, h3 {
+    text-align: center;
+    color: #2e7d32;
+    margin: 20px 0;
+    font-weight: 600;
+    text-shadow: 2px 2px 2px rgba(0,0,0,0.1);
+}
+
+/* Table styling */
+table {
+    width: 90%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 15px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background: linear-gradient(90deg, #4CAF50, #81c784);
+    color: white;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+    transition: background-color 0.3s ease;
+}
+
+/* Quantity input */
+input[type=number] {
+    width: 60px;
+    text-align: center;
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    transition: border-color 0.3s ease;
+}
+input[type=number]:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 6px rgba(76,175,80,0.3);
+}
+
+/* Search bar */
+.search-bar {
+    text-align: center;
+    margin: 20px;
+}
+.search-bar input {
+    padding: 10px 14px;
+    width: 100%;
+    max-width: 350px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    transition: box-shadow 0.3s ease;
+}
+.search-bar input:focus {
+    outline: none;
+    box-shadow: 0 0 6px rgba(76,175,80,0.3);
+}
+
+/* Buttons */
+button {
+    display: block;
+    margin: 25px auto;
+    padding: 12px 22px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #4CAF50, #388e3c);
+    color: white;
+    font-weight: 600;
+    transition: transform 0.2s ease, background 0.3s ease;
+}
+button:hover {
+    background: #2e7d32;
+    transform: translateY(-2px);
+}
+
+/* Scrollable table wrapper */
+.scrollable-table {
+    max-height: 420px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    margin-bottom: 30px;
+    border-radius: 12px;
+}
+
+/* Payment method section */
+.payment-method {
+    text-align: center;
+    margin: 25px;
+}
+.payment-method label {
+    margin: 0 15px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #333;
+    transition: color 0.3s ease;
+}
+.payment-method label:hover {
+    color: #4CAF50;
+}
+
+.back {text-align: center; }
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+    table { width: 95%; }
+    th, td { padding: 10px; font-size: 14px; }
+    input[type=number] { width: 50px; }
+    button { font-size: 15px; padding: 10px 18px; }
+    .payment-method label { font-size: 14px; margin: 0 10px; }
+}
+
+@media (max-width: 480px) {
+    h1, h3 { font-size: 20px; }
+    table { font-size: 13px; }
+    th, td { padding: 8px; }
+    input[type=number] { width: 45px; }
+    button { width: 85%; font-size: 14px; }
+    .search-bar input { max-width: 100%; }
+    .payment-method { display: flex; flex-direction: column; gap: 10px; }
+    .payment-method label { font-size: 13px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 style="background-color: #45a049;">🛒 Welcome to SmartSpaza</h1> <hr>
+
+<div class="search-bar">
+    <label for="search">Search Product:</label>
+    <input type="text" id="search" placeholder="Type product name...">
+</div>
+
+<form method="POST" id="orderForm">
+    <div class="scrollable-table">
+        <table id="productTable">
+            <tr>
+                <th>Product</th>
+                <th>Price (R)</th>
+                <th>Quantity</th>
+                <th>Line Total (R)</th>
+            </tr>
+            {% for product in products %}
+            <tr class="productRow">
+                <td>{{ product[2] }}</td>
+                <td>{{ "%.2f"|format(product[5]|float) }}</td>
+                <td>
+                    <input type="number" 
+                           name="qty_{{ product[0] }}" 
+                           min="0" value="0" 
+                           class="qty" 
+                           data-price="{{ product[5] }}" 
+                           data-stock="{{ product[6] }}">
+                </td>
+                <td class="lineTotal">0.00</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <!-- Payment method choice -->
+    <div class="payment-method">
+        <label><input type="radio" name="payment_method" value="cash" checked> 💵 Cash (no fee)</label>
+        <label><input type="radio" name="payment_method" value="card"> 💳 Card (includes R3 fee)</label>
+    </div>
+
+    <h3 id="totalLabel">
+        Total to Pay: R<span id="grandTotal">0.00</span>
+    </h3>
+    <button type="submit">Confirm Order</button>
+</form>
+
+<a class="back" href="{{ url_for('dashboard') }}">⬅ Dashboard</a>
+
+<!-- Toast Container -->
+<div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="toast-message {{ category }}" style="
+                background-color: #333; color: white; 
+                padding: 12px 20px; border-radius: 8px; 
+                margin-top: 10px; opacity: 0; transition: all 0.5s;">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const qtyInputs = document.querySelectorAll(".qty");
+const fixedCharge = {{ fixed_fee }};
+const totalLabel = document.getElementById("totalLabel");
+const paymentRadios = document.querySelectorAll("input[name='payment_method']");
+const confirmBtn = document.querySelector("button[type='submit']");
+const toastContainer = document.getElementById("toast-container");
+
+function showToast(message) {
+    const toast = document.createElement("div");
+    toast.className = "toast-message";
+    toast.innerText = message;
+    toast.style.opacity = 0;
+    toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = 1;
+        toast.style.transform = "translateY(-10px)";
+    }, 100);
+
+    setTimeout(() => {
+        toast.style.opacity = 0;
+        toast.style.transform = "translateY(0px)";
+        toast.remove();
+    }, 3000);
+}
+
+function updateTotal() {
+    let subtotal = 0;
+    let hasSelection = false;
+
+    qtyInputs.forEach(inp => {
+        const price = parseFloat(inp.dataset.price) || 0;
+        const qty = parseInt(inp.value) || 0;
+        const lineTotal = price * qty;
+        inp.closest("tr").querySelector(".lineTotal").innerText = lineTotal.toFixed(2);
+        subtotal += lineTotal;
+        if (qty > 0) hasSelection = true;
+    });
+
+    const method = document.querySelector("input[name='payment_method']:checked").value;
+    let total = subtotal;
+
+    if (method === "card") {
+        total += fixedCharge;
+        totalLabel.innerHTML = `Total to Pay (Including R${fixedCharge} Transaction Fee): R<span id="grandTotal">${total.toFixed(2)}</span>`;
+    } else {
+        totalLabel.innerHTML = `Total to Pay (Cash, no fee): R<span id="grandTotal">${total.toFixed(2)}</span>`;
+    }
+
+    confirmBtn.disabled = !hasSelection;
+}
+
+qtyInputs.forEach(input => input.addEventListener("input", updateTotal));
+paymentRadios.forEach(radio => radio.addEventListener("change", updateTotal));
+updateTotal();
+
+// Prevent submission if invalid
+document.getElementById("orderForm").addEventListener("submit", function(e) {
+    let hasSelection = false;
+    let valid = true;
+
+    qtyInputs.forEach(inp => {
+        const qty = parseInt(inp.value) || 0;
+        const stock = parseInt(inp.dataset.stock) || 0;
+
+        if (qty > 0) hasSelection = true;
+        if (qty > stock) {
+            valid = false;
+            showToast(`⚠️ Invalid: Requested ${qty} exceeds available stock (${stock}).`);
+        }
+    });
+
+    if (!hasSelection) {
+        e.preventDefault();
+        showToast("⚠️ Please select at least one product before confirming.");
+    }
+
+    if (!valid) {
+        e.preventDefault();
+    }
+});
+
+// Search functionality
+document.getElementById("search").addEventListener("keyup", function() {
+    const filter = this.value.toLowerCase();
+    document.querySelectorAll("#productTable .productRow").forEach(row => {
+        const productName = row.cells[0].innerText.toLowerCase();
+        row.style.display = productName.includes(filter) ? "" : "none";
+    });
+});
+
+// Toast fade effect for server-side messages
+window.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('#toast-container .toast-message').forEach(toast => {
+        toast.style.opacity = 1;
+        toast.style.transform = "translateY(-10px)";
+        setTimeout(() => {
+            toast.style.opacity = 0;
+            toast.style.transform = "translateY(0px)";
+            toast.remove();
+        }, 3000);
+    });
+});
+</script>
+{% endblock %}

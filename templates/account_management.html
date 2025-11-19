@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block title %}SmartSpaza - Owner Account Management{% endblock %}
+
+{% block head %}
+<style>
+ body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    position: relative;
+    background: linear-gradient(90deg, #b2a9ff, #dfdfdf);
+   
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(255,255,255,0.6); /* light overlay instead of dark */
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Headings */
+h1 {
+    text-align: center;
+    color: #2e7d32;
+    margin-bottom: 25px;
+    font-size: 28px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+}
+
+.nav-bar-top {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 14px 20px;
+    margin: 10px auto;
+}
+.nav-bar-top a {
+    text-decoration: none;
+    color: #4CAF50;
+    font-weight: 600;
+    padding: 4px 18px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Search bar */
+.search-bar {
+    text-align: center;
+    margin: 20px;
+}
+.search-bar label {
+    font-weight: 600;
+    margin-right: 8px;
+}
+.search-bar input {
+    padding: 10px 14px;
+    width: 100%;
+    max-width: 350px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    transition: box-shadow 0.3s ease;
+}
+.search-bar input:focus {
+    outline: none;
+    box-shadow: 0 0 6px rgba(76,175,80,0.3);
+}
+
+/* Table styling */
+table {
+    width: 95%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 15px;
+    min-width: 600px;
+}
+th, td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+th {
+    background: linear-gradient(90deg, #4CAF50, #81c784);
+    color: white;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+tr:nth-child(even) { background-color: #f9f9f9; }
+tr:hover { background-color: #f1f1f1; transition: background-color 0.3s ease; }
+
+td input[type="checkbox"] {
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+.scrollable-table {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    margin-bottom: 30px;
+}
+
+/* Bulk actions */
+.bulk-actions {
+    text-align: center;
+    margin: 25px auto;
+}
+.bulk-actions button {
+    margin: 10px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.3s ease;
+}
+.bulk-actions button:hover { transform: translateY(-2px); }
+
+.block-btn { background: #ff9800; color: white; }
+.block-btn:hover { background: #e68900; }
+
+.unblock-btn { background: #4CAF50; color: white; }
+.unblock-btn:hover { background: #388e3c; }
+
+.delete-btn { background: #f44336; color: white; }
+.delete-btn:hover { background: #d32f2f; }
+
+/* Flash messages */
+.flash-message {
+    margin: 15px auto;
+    padding: 12px 18px;
+    border-radius: 6px;
+    width: 90%;
+    max-width: 600px;
+    text-align: center;
+    font-weight: 600;
+}
+.flash-success { background: #e8f5e9; color: #2e7d32; }
+.flash-warning { background: #fff3cd; color: #856404; }
+.flash-danger  { background: #f8d7da; color: #721c24; }
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+    table { width: 100%; font-size: 14px; }
+    th, td { padding: 10px; }
+    .bulk-actions button { padding: 10px 16px; font-size: 14px; }
+}
+
+@media (max-width: 480px) {
+    h1 { font-size: 22px; }
+    .nav-link { display: block; width: 90%; text-align: center; }
+    .bulk-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+    .bulk-actions button {
+        width: 90%;
+    }
+    .search-bar label {
+        display: block;
+        margin-bottom: 6px;
+    }
+    table { min-width: auto; 
+        font-size: 13px; }
+    th, td { 
+        padding: 8px; }
+}
+
+.nav-bar-top a:hover {
+    background-color: #4CAF50;
+    color: white;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 style="font-size: xxx-large;"><strong>Owner Account Management</strong> </h1>
+
+<div class="nav-bar-top">
+    <a style="font-size: x-large;" href="{{ url_for('dev_dashboard') }}" > Dashboard</a>
+    <a style="font-size: x-large;" href="{{ url_for('transactions') }}" > Transactions</a>
+</div>
+
+<div class="search-bar">
+    <label for="search">Search Product:</label>
+    <input type="text" id="search" placeholder="Type product name...">
+</div>
+
+<form method="POST" action="{{ url_for('manage_accounts') }}" id="bulkForm">
+    <div class="table-wrapper">
+        <div class="scrollable-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Cell Number</th>
+                        <th>Address</th>
+                        <th>Status</th>
+                        <th>Products</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for owner in owners %}
+                    <tr>
+                        <td><input type="checkbox" name="selected_ids" value="{{ owner.id }}"></td>
+                        <td>{{ owner.id }}</td>
+                        <td>{{ owner.username }}</td>
+                        <td>{{ owner.email }}</td>
+                        <td>{{ owner.cellnumber }}</td>
+                        <td>{{ owner.location }}</td>
+                        <td>
+                            {% if owner.status == 'blocked' %}
+                                <span style="color:red; font-weight:bold;">Blocked</span>
+                            {% else %}
+                                <span style="color:green; font-weight:bold;">Active</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ owner.product_count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bulk Action Buttons -->
+    <div class="bulk-actions">
+        <button type="submit" name="action" value="block" class="block-btn">Block</button>
+        <button type="submit" name="action" value="unblock" class="unblock-btn">Unblock</button>
+        <button type="submit" name="action" value="delete" class="delete-btn">Delete</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block script %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const form = document.querySelector("form"); // target your bulk action form
+
+    form.addEventListener("submit", function(event) {
+        // Find which button triggered the submit
+        const action = event.submitter ? event.submitter.value : null;
+
+        if (action === "delete") {
+            const confirmed = confirm("⚠️ Are you sure you want to DELETE the selected owner(s) and all related data?");
+            if (!confirmed) {
+                event.preventDefault(); // stop form submission
+            }
+        } else if (action === "block") {
+            const confirmed = confirm("Block selected owner(s)? They will not be able to log in.");
+            if (!confirmed) {
+                event.preventDefault();
+            }
+        } else if (action === "unblock") {
+            const confirmed = confirm("Unblock selected owner(s)? They will regain access.");
+            if (!confirmed) {
+                event.preventDefault();
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

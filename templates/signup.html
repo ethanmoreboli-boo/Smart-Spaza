@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - SmartSpaza{% endblock %}
+
+{% block head %}
+<style>
+    body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #a8edea, #fed6e3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    background-color: white;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    width: 400px;
+    max-width: 95%;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #00695c;
+    font-size: 26px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(45deg, #00c6ff, #0072ff);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    transition: background 0.3s ease;
+}
+
+button:hover {
+    background: linear-gradient(45deg, #0072ff, #00c6ff);
+}
+
+.login-link {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.flash {
+    color: red;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.optional {
+    font-size: 0.9rem;
+    color: #777;
+}
+
+.password-feedback {
+    font-size: 0.9rem;
+    margin-top: 2px;
+}
+
+.password-feedback.match { color: green; }
+.password-feedback.no-match { color: red; }
+
+.password-strength {
+    font-size: 0.9rem;
+    margin-top: 2px;
+}
+
+.strength-weak { color: red; }
+.strength-medium { color: orange; }
+.strength-strong { color: green; }
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+    h1 { font-size: 22px; }
+    .container { padding: 20px; width: 90%; }
+    button { font-size: 15px; padding: 10px; }
+}
+
+@media (max-width: 480px) {
+    h1 { font-size: 20px; }
+    .container { padding: 15px; }
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="password"] { font-size: 14px; }
+    button { font-size: 14px; padding: 10px; }
+    .login-link, .flash { font-size: 13px; }
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Owner Sign Up</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" id="signupForm">
+    <input type="text" name="username" placeholder="Username" required>
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="text" name="location" placeholder="Business Location / Address" required>
+    <input type="text" name="cellnumber" placeholder="Cell Number" required>
+    <input type="text" name="office_number" placeholder="Office Number (Optional)">
+    <input type="text" name="shop_name" placeholder="Business Name" required>
+    
+    <input type="password" name="password" placeholder="Password" required id="password">
+    <div id="strengthMsg" class="password-strength"></div>
+
+    <input type="password" name="confirm_password" placeholder="Confirm Password" required id="confirm_password">
+    <div id="matchMsg" class="password-feedback"></div>
+
+    <!-- 🔒 New passcode field -->
+    <input type="password" name="passcode" placeholder="Owner Passcode (PIN)" required>
+    <small class="form-text text-muted">
+        This passcode will be required to access sensitive pages like Progress.
+    </small>
+
+    <!-- Hidden flag for approval system -->
+    <input type="hidden" name="approved" value="0">
+
+    <button type="submit">Create Account</button>
+</form>
+
+
+    <div class="login-link">
+        <p>Already have an account? <a href="{{ url_for('login') }}">Log In</a></p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const password = document.getElementById("password");
+const confirmPassword = document.getElementById("confirm_password");
+const matchMsg = document.getElementById("matchMsg");
+const strengthMsg = document.getElementById("strengthMsg");
+
+// Password strength check
+password.addEventListener("input", () => {
+    const val = password.value;
+    let strength = "Weak";
+    let className = "strength-weak";
+
+    const hasLower = /[a-z]/.test(val);
+    const hasUpper = /[A-Z]/.test(val);
+    const hasNumber = /[0-9]/.test(val);
+    const hasSpecial = /[\W_]/.test(val);
+
+    if(val.length >= 8 && hasLower && hasUpper && hasNumber && hasSpecial) {
+        strength = "Strong";
+        className = "strength-strong";
+    } else if(val.length >= 6 && ((hasLower && hasUpper) || (hasLower && hasNumber))) {
+        strength = "Medium";
+        className = "strength-medium";
+    }
+
+    strengthMsg.textContent = `Strength: ${strength}`;
+    strengthMsg.className = `password-strength ${className}`;
+});
+
+// Password match check
+function checkMatch() {
+    if(confirmPassword.value === "") {
+        matchMsg.textContent = "";
+        return;
+    }
+    if(password.value === confirmPassword.value) {
+        matchMsg.textContent = "Passwords match ✅";
+        matchMsg.className = "password-feedback match";
+    } else {
+        matchMsg.textContent = "Passwords do not match ❌";
+        matchMsg.className = "password-feedback no-match";
+    }
+}
+
+password.addEventListener("input", checkMatch);
+confirmPassword.addEventListener("input", checkMatch);
+
+// Optional: Prevent form submission if passwords don't match
+document.getElementById("signupForm").addEventListener("submit", (e) => {
+    if(password.value !== confirmPassword.value) {
+        e.preventDefault();
+        alert("Passwords do not match! Please correct them.");
+    }
+});
+</script>
+{% endblock %}
