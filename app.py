@@ -17,7 +17,12 @@ app = Flask(__name__)
 app.secret_key = 'smartspaza_secret'
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
-app.config['postgresql://postgresql_smart_user:JTqSJJe1HRuO2ClpttSFGwfoU6D53Vwy@dpg-d4f3q115pdvs73a7ebng-a/postgresql_smart'] = os.environ.get("DATABASE_URL")
+db_url = os.environ.get("DATABASE_URL_EXTERNAL")
+if not db_url:
+    # fallback for local dev (SQLite)
+    db_url = "sqlite:///local.db"
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
