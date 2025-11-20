@@ -17,18 +17,24 @@
     {% block head %}{% endblock %}
 
     <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* ensures full height */
+            margin: 0;
+        }
+
+        main {
+            flex: 1; /* pushes footer down */
+        }
+
         footer {
-            position: fixed;       
-            bottom: 0;            
-            left: 0;
-            width: 100%;          
-            background: #2e7d32;   
+            background: #2e7d32;
             color: rgb(85, 184, 92);
             text-align: center;
             padding: 12px 0;
             font-size: 14px;
             box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
-            z-index: 1000;
         }
 
         @media (max-width: 480px) {
@@ -44,7 +50,7 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="text-center mt-5">
+    <footer class="text-center">
         &copy; 2025 SmartSpaza. All rights reserved.
     </footer>
 
