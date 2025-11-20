@@ -10,13 +10,17 @@ from io import StringIO, BytesIO
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
 from dotenv import load_dotenv
-
+from flask_sqlalchemy import SQLAlchemy
 
 
 app = Flask(__name__)
 app.secret_key = 'smartspaza_secret'
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
+app.config['postgresql://postgresql_smart_user:JTqSJJe1HRuO2ClpttSFGwfoU6D53Vwy@dpg-d4f3q115pdvs73a7ebng-a/postgresql_smart'] = os.environ.get("DATABASE_URL")
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
 
 
 load_dotenv()
