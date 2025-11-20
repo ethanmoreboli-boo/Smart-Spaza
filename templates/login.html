@@ -4,7 +4,7 @@
 
 {% block head %}
 <style>
-   body {
+  body {
     font-family: Arial, sans-serif;
     background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
     display: flex;
@@ -21,18 +21,15 @@
     padding: 20px;
 }
 
-/* Card container */
 .container {
     background-color: white;
-    padding: 50px;
+    padding: 50px 50px;
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     width: 100%;
     max-width: 450px;
-    box-sizing: border-box;
 }
 
-/* Headings */
 h1 {
     text-align: center;
     margin-bottom: 30px;
@@ -40,8 +37,8 @@ h1 {
     font-size: 30px;
 }
 
-/* Inputs */
-input[type="text"], input[type="password"] {
+input[type="text"],
+input[type="password"] {
     width: 100%;
     padding: 15px;
     margin: 12px 0;
@@ -51,7 +48,6 @@ input[type="text"], input[type="password"] {
     box-sizing: border-box;
 }
 
-/* Buttons */
 button {
     width: 100%;
     padding: 16px;
@@ -69,7 +65,6 @@ button:hover {
     background: linear-gradient(45deg, #0072ff, #00c6ff);
 }
 
-/* Links and messages */
 .signup-link {
     margin-top: 20px;
     text-align: center;
@@ -83,7 +78,6 @@ button:hover {
     font-size: 15px;
 }
 
-/* Footer */
 footer {
     text-align: center;
     padding: 15px;
@@ -92,26 +86,10 @@ footer {
     background: transparent;
 }
 
-/* Tablet responsiveness */
 @media (max-width: 768px) {
-    .container {
-        max-width: 90%;
-        padding: 35px;
-    }
+    .container { max-width: 90%; padding: 35px; }
     h1 { font-size: 26px; }
     input, button { font-size: 16px; }
-}
-
-/* Phone responsiveness */
-@media (max-width: 480px) {
-    .container {
-        max-width: 100%;
-        padding: 20px;
-        border-radius: 0; /* edge-to-edge look */
-    }
-    h1 { font-size: 22px; }
-    input, button { font-size: 14px; }
-    .signup-link { font-size: 14px; }
 }
 
 </style>
